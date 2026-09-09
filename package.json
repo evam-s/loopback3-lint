@@ -10,7 +10,7 @@
   "main": "./dist/extension.js",
   "scripts": {
     "build": "tsc -p .",
-    "test": "npm run build && node --test out/test/util/nearMiss.test.js",
+    "test": "npm run build && node --test \"out/test/**/*.test.js\"",
     "bundle": "node esbuild.mjs",
     "package": "npm run bundle && vsce package"
   },

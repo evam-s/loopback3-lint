@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as espree from 'espree';
-import { checkJs, checkLb4Syntax } from '../../src/core/rules/js';
+import { checkJs } from '../../src/core/rules/js';
 
 const run = (code: string) =>
   checkJs(espree.parse(code, { ecmaVersion: 2022, range: true, sourceType: 'script' }));
@@ -36,18 +36,6 @@ test('flags an unknown remoteMethod option', () => {
   const f = run("Order.remoteMethod('search', { acepts: [], returns: {} });");
   assert.equal(f[0]!.ruleId, 'lb3/unknown-remote-method-option');
   assert.equal(f[0]!.suggestion, 'accepts');
-});
-
-test('flags LoopBack 4 syntax without needing the file to parse', () => {
-  const f = checkLb4Syntax("const { repository } = require('@loopback/repository');");
-  assert.equal(f[0]!.ruleId, 'lb3/loopback4-syntax');
-});
-
-test('flags LoopBack 4 decorators, which do not parse as LoopBack 3 script', () => {
-  // The reason this rule is text-level: espree in script mode rejects this
-  // outright, so an AST-based check would find nothing here.
-  const f = checkLb4Syntax('@model()\nexport class Order {}');
-  assert.equal(f[0]!.ruleId, 'lb3/loopback4-syntax');
 });
 
 test('checks filters passed to finder methods', () => {

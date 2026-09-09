@@ -7,7 +7,7 @@ import { checkModelJson } from './rules/modelJson';
 import { checkModelConfigJson } from './rules/modelConfigJson';
 import { checkDatasourcesJson } from './rules/datasourcesJson';
 import { checkMiddlewareJson } from './rules/middlewareJson';
-import { checkJs, checkLb4Syntax } from './rules/js';
+import { checkJs } from './rules/js';
 
 export const ALL_RULE_IDS: readonly string[] = [
   'lb3/foreign-filter-key', 'lb3/unknown-filter-key', 'lb3/mongo-operator',
@@ -17,7 +17,7 @@ export const ALL_RULE_IDS: readonly string[] = [
   'lb3/unknown-relation-key', 'lb3/invalid-acl-value', 'lb3/unknown-base-model',
   'lb3/unknown-model-config-key', 'lb3/unknown-connector',
   'lb3/invalid-middleware-phase', 'lb3/invalid-operation-hook',
-  'lb3/unknown-remote-method-option', 'lb3/loopback4-syntax',
+  'lb3/unknown-remote-method-option',
 ];
 
 /**
@@ -39,11 +39,6 @@ export function lintText(input: LintInput, severities: RuleSeverities = {}): Fin
   const findings: Finding[] = [];
 
   if (decision.kind === 'js') {
-    // Text-level, and deliberately before the parse: a file of LoopBack 4
-    // decorators never parses as a LoopBack 3 script, and that file is
-    // exactly what this rule is for.
-    findings.push(...safely(() => checkLb4Syntax(input.text), []));
-
     // A parse failure is not our business: the editor already reports syntax
     // errors, and half-typed code is not a vocabulary mistake.
     const ast = safely(

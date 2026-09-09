@@ -14,31 +14,6 @@ const REMOTE_METHOD_OPTIONS = [
   'isStatic', 'accessType', 'documented', 'shared',
 ];
 
-const LB4_IMPORT = /@loopback\//;
-const LB4_DECORATORS = /@(?:model|property|repository|inject|authenticate)\s*[(\s]/;
-
-/**
- * Text-level, deliberately independent of the parser.
- *
- * A file full of LoopBack 4 decorators will not parse as a LoopBack 3 script
- * at all, so an AST-dependent check would produce nothing on exactly the
- * files this rule targets. lintText calls this outside the parse try/catch.
- */
-export function checkLb4Syntax(text: string): Finding[] {
-  const out: Finding[] = [];
-  for (const pattern of [LB4_IMPORT, LB4_DECORATORS]) {
-    const m = pattern.exec(text);
-    if (!m) continue;
-    out.push({
-      ruleId: 'lb3/loopback4-syntax',
-      message: `'${m[0].trim()}' is LoopBack 4 syntax and has no effect in a LoopBack 3 application.`,
-      range: { start: m.index, end: m.index + m[0].length },
-      severity: 'warn',
-    });
-  }
-  return out;
-}
-
 interface AnyNode { type: string; range: [number, number]; [k: string]: any }
 
 function walk(node: AnyNode, visit: (n: AnyNode) => void): void {

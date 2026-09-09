@@ -46,6 +46,28 @@ test('flags inq with a non-array value', () => {
   assert.equal(f[0]!.ruleId, 'lb3/filter-value-shape');
 });
 
+test('reports a scalar between exactly once, not twice', () => {
+  const f = check('{ "where": { "total": { "between": 5 } } }');
+  assert.equal(f.length, 1);
+  assert.match(f[0]!.message, /array/);
+});
+
+test('flags a between array of the wrong length', () => {
+  const f = check('{ "where": { "total": { "between": [1, 2, 3] } } }');
+  assert.equal(f.length, 1);
+  assert.match(f[0]!.message, /exactly 2/);
+});
+
+test('accepts a well-formed between', () => {
+  assert.deepEqual(check('{ "where": { "total": { "between": [1, 2] } } }'), []);
+});
+
+test('flags a $-operator with no LoopBack equivalent without inventing a suggestion', () => {
+  const f = check('{ "where": { "x": { "$exists": true } } }');
+  assert.equal(f[0]!.ruleId, 'lb3/mongo-operator');
+  assert.equal(f[0]!.suggestion, undefined);
+});
+
 test('flags limit given as a string', () => {
   assert.deepEqual(ids('{ "limit": "10" }'), ['lb3/filter-value-shape']);
 });

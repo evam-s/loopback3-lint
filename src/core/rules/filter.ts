@@ -111,7 +111,8 @@ function checkOperators(operators: ObjLike, out: Finding[]): void {
           severity: 'warn',
         });
       }
-      if (key === 'between' && (value.items?.length ?? 0) !== 2) {
+      else if (key === 'between' && value.kind === 'array'
+               && (value.items?.length ?? 0) !== 2) {
         out.push({
           ruleId: 'lb3/filter-value-shape',
           message: `'between' requires exactly 2 values.`,

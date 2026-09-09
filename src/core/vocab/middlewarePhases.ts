@@ -1,6 +1,7 @@
 // Derived from loopback@3.28.0
-//   lib/server-app.js:119  comment listing the built-in phase order:
-//     "initial, session, auth, parse, routes, files, final"
+//   lib/server-app.js:277-278  the executable `_requestHandlingPhases`
+//     array: ['initial', 'session', 'auth', 'parse', 'routes', 'files',
+//     'final']
 // Cross-checked against loopback.io/doc/en/lb3/Defining-middleware.html
 // on 2026-09-09, which documents the same seven phases.
 //

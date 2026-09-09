@@ -1,5 +1,5 @@
 // Derived from loopback-datasource-juggler@3.36.1
-//   lib/types.js:44-70  the type-registration block: registerType() calls
+//   lib/types.js:59-71  the type-registration block: registerType() calls
 //     for Text, JSON, Any, String, Number, Boolean, Date, DateString,
 //     Buffer (alias 'Binary'), Array, GeoPoint, Object
 // Cross-checked against loopback.io/doc/en/lb3/LoopBack-types.html on

@@ -1,0 +1,21 @@
+{
+  "name": "Order",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": { "validateUpsert": true },
+  "properties": {
+    "total": { "type": "number", "required": true },
+    "status": { "type": "string", "default": "open" },
+    "meta": { "type": "object" },
+    "sku": { "type": "string", "mysql": { "columnName": "SKU" } }
+  },
+  "validations": [],
+  "relations": {
+    "customer": { "type": "belongsTo", "model": "Customer", "foreignKey": "customerId" },
+    "lines": { "type": "hasMany", "model": "OrderLine", "scope": { "order": "id ASC" } }
+  },
+  "acls": [
+    { "accessType": "READ", "principalType": "ROLE", "principalId": "$everyone", "permission": "ALLOW" }
+  ],
+  "methods": {}
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Order",
+  "base": "PersistantModel",
+  "properties": {
+    "total": { "type": "number", "requred": true },
+    "label": { "type": "stirng" }
+  },
+  "relations": {
+    "customer": { "type": "belongsto", "model": "Customer" }
+  },
+  "acl": [
+    { "accessType": "REED", "principalType": "ROLE", "permission": "ALOW" }
+  ]
+}

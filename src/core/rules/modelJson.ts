@@ -1,6 +1,6 @@
 import type { Finding } from '../types';
 import type { ObjLike } from '../adapters';
-import { suggest, levenshtein } from '../util/nearMiss';
+import { suggest } from '../util/nearMiss';
 import { checkFilter } from './filter';
 import { MODEL_TOP_LEVEL_KEYS, PROPERTY_ATTRIBUTE_KEYS } from '../vocab/modelKeys';
 import { PROPERTY_TYPES } from '../vocab/propertyTypes';
@@ -26,37 +26,6 @@ function suggestPropertyType(token: string): string | undefined {
   return PROPERTY_TYPES[PROPERTY_TYPES_LOWER.indexOf(near)];
 }
 
-// nearMiss.suggest() caps its edit-distance threshold at 2 for any token six
-// characters or longer (see util/nearMiss.ts and its test suite, which pins
-// that cap). That cap was tuned against short filter-operator tokens like
-// 'regexp' and 'between'. BUILTIN_MODELS entries are longer compound class
-// names, and a realistic misspelling of one can land a third edit away --
-// 'PersistantModel' is 3 edits from 'PersistedModel' (two substitutions plus
-// an insertion), not 2. Rather than loosen the shared nearMiss threshold
-// (which would affect every other rule using it, including short tokens
-// where a 3-edit "near miss" would be a real false alarm), base-model
-// matching gets its own threshold that scales one step further for long
-// tokens, continuing nearMiss's own progression (1 below 6 chars, 2 from 6
-// to 11) with a third tier (3 from 12 chars up).
-function suggestBaseModel(token: string): string | undefined {
-  if (BUILTIN_MODELS.includes(token)) return undefined;
-  const lower = token.toLowerCase();
-  for (const c of BUILTIN_MODELS) {
-    if (c.toLowerCase() === lower) return c;
-  }
-  const threshold = token.length < 6 ? 1 : token.length < 12 ? 2 : 3;
-  let best: string | undefined;
-  let bestDistance = Infinity;
-  for (const c of BUILTIN_MODELS) {
-    const d = levenshtein(token, c);
-    if (d <= threshold && d < bestDistance) {
-      best = c;
-      bestDistance = d;
-    }
-  }
-  return best;
-}
-
 export function checkModelJson(root: ObjLike): Finding[] {
   const out: Finding[] = [];
 
@@ -75,7 +44,7 @@ export function checkModelJson(root: ObjLike): Finding[] {
     }
 
     if (key === 'base' && value.kind === 'string') {
-      const near = suggestBaseModel(value.stringValue!);
+      const near = suggest(value.stringValue!, BUILTIN_MODELS);
       if (near) {
         out.push({
           ruleId: 'lb3/unknown-base-model',

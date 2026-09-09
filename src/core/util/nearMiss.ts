@@ -39,10 +39,17 @@ export function suggest(
     if (c.toLowerCase() === lower) return c;
   }
 
-  const threshold = token.length < 6 ? 1 : 2;
+  // The threshold scales on the CANDIDATE's length, not the token's. A long,
+  // well-established dictionary word can plausibly absorb a three-edit typo
+  // ('PersistedModel', 14 chars, tolerates 'PersistantModel'), but a short
+  // dictionary word must not inherit that tolerance just because the user's
+  // own identifier happens to be long -- 'Checkpoint' (10 chars) keeps a
+  // threshold of 2, so a real user model like 'CheckpointLog' (13 chars)
+  // stays unflagged rather than being mistaken for a typo of 'Checkpoint'.
   let best: string | undefined;
   let bestDistance = Infinity;
   for (const c of candidates) {
+    const threshold = c.length < 6 ? 1 : c.length < 12 ? 2 : 3;
     const d = levenshtein(token, c);
     if (d <= threshold && d < bestDistance) {
       best = c;

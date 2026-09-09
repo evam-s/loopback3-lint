@@ -24,9 +24,18 @@ test('suggest allows distance 1 for short tokens', () => {
   assert.equal(suggest('ne', OPS), 'neq');
 });
 
-test('suggest allows distance 2 for tokens of six characters or more', () => {
+test('suggest allows distance 2 for candidates of six characters or more', () => {
   assert.equal(suggest('regex', OPS), 'regexp');
   assert.equal(suggest('betwen', OPS), 'between');
+});
+
+test('suggest allows distance 3 for candidates of twelve characters or more', () => {
+  assert.equal(suggest('PersistantModel', ['PersistedModel']), 'PersistedModel');
+});
+
+test('suggest scales on the candidate, not the token', () => {
+  assert.equal(suggest('CheckpointLog', ['Checkpoint', 'PersistedModel']), undefined);
+  assert.equal(suggest('RoleMappingExt', ['RoleMapping', 'PersistedModel']), undefined);
 });
 
 test('suggest stays silent when nothing is close', () => {

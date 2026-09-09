@@ -1,0 +1,9 @@
+out/**
+test/**
+src/**
+docs/**
+scripts/**
+.gitignore
+tsconfig.json
+esbuild.mjs
+**/*.map

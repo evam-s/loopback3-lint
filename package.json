@@ -1,0 +1,28 @@
+{
+  "name": "loopback3-lint",
+  "displayName": "LoopBack 3 Lint",
+  "description": "Flags LoopBack 3 vocabulary errors that the framework accepts silently.",
+  "version": "0.0.1",
+  "publisher": "evams",
+  "license": "MIT",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Linters"],
+  "main": "./dist/extension.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "npm run build && node --test out/test/util/nearMiss.test.js",
+    "bundle": "node esbuild.mjs",
+    "package": "npm run bundle && vsce package"
+  },
+  "dependencies": {
+    "espree": "^10.0.0",
+    "jsonc-parser": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.4.0"
+  }
+}

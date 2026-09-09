@@ -8,6 +8,37 @@
   "engines": { "vscode": "^1.85.0" },
   "categories": ["Linters"],
   "main": "./dist/extension.js",
+  "activationEvents": ["onLanguage:javascript", "onLanguage:json", "onLanguage:jsonc"],
+  "contributes": {
+    "commands": [
+      {
+        "command": "lb3lint.explainDetection",
+        "title": "LoopBack 3 Lint: Explain detection for this file"
+      }
+    ],
+    "configuration": {
+      "title": "LoopBack 3 Lint",
+      "properties": {
+        "lb3lint.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable LoopBack 3 linting."
+        },
+        "lb3lint.exclude": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Glob patterns for files that are never linted."
+        },
+        "lb3lint.rules": {
+          "type": "object",
+          "default": {},
+          "additionalProperties": { "enum": ["error", "warn", "off"] },
+          "description": "Per-rule severity, keyed by rule id such as lb3/mongo-operator."
+        }
+      }
+    }
+  },
   "scripts": {
     "build": "tsc -p .",
     "test": "npm run build && node --test \"out/test/**/*.test.js\"",

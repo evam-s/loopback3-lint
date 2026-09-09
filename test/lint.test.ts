@@ -44,16 +44,16 @@ test('returns nothing for unparseable javascript rather than throwing', () => {
   );
 });
 
-test('returns findings sorted by position', () => {
-  const f = lintText({
-    path: '/app/common/models/order.json',
-    text: '{ "name": "O", "relations": { "r": { "type": "belongsto" } }, "base": "PersistantModel" }',
-    languageId: 'json',
-  });
-  assert.ok(f.length >= 2);
-  for (let i = 1; i < f.length; i++) {
-    assert.ok(f[i]!.range.start >= f[i - 1]!.range.start);
-  }
+test('returns findings sorted by position even when rules emit out of order', () => {
+  // checkLb4Syntax runs before checkJs, so its finding is pushed first
+  // despite sitting later in the file. Without the sort, these come back
+  // reversed.
+  const text = "Order.observe('beforeSave', fn);\nconst { repository } = require('@loopback/repository');";
+  const f = lintText({ path: '/app/common/models/order.js', text, languageId: 'javascript' });
+  assert.equal(f.length, 2);
+  assert.equal(f[0]!.ruleId, 'lb3/invalid-operation-hook');
+  assert.equal(f[1]!.ruleId, 'lb3/loopback4-syntax');
+  assert.ok(f[0]!.range.start < f[1]!.range.start);
 });
 
 test('exposes every rule id it can emit', () => {

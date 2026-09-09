@@ -20,8 +20,6 @@ export const ALL_RULE_IDS: readonly string[] = [
   'lb3/unknown-remote-method-option', 'lb3/loopback4-syntax',
 ];
 
-export const DEFAULT_SEVERITIES: Readonly<RuleSeverities> = {};
-
 /**
  * Runs one checker in isolation. A rule that throws must not discard the
  * findings of the rules that succeeded, nor the file.
@@ -50,7 +48,7 @@ export function lintText(input: LintInput, severities: RuleSeverities = {}): Fin
     // errors, and half-typed code is not a vocabulary mistake.
     const ast = safely(
       () => espree.parse(input.text, {
-        ecmaVersion: 2022, range: true, sourceType: 'script', allowReserved: true,
+        ecmaVersion: 2022, range: true, sourceType: 'script',
       }),
       undefined,
     );

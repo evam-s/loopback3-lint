@@ -77,14 +77,26 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument(lint),
-    vscode.workspace.onDidSaveTextDocument(lint),
-    vscode.workspace.onDidChangeTextDocument((e) => {
-      // Only matters under autosave; an explicit save is handled above.
-      if (!e.document.isDirty) scheduleLint(e.document);
-    }),
+
+    // Debounced rather than immediate. Autosave fires this handler as often as
+    // it saves, and coalescing those bursts is the entire reason the debounce
+    // exists; 500 ms is imperceptible for a linter.
+    //
+    // There is deliberately NO onDidChangeTextDocument handler. Autosave
+    // reaches us through the save event like any other save, so a change
+    // handler would either duplicate this one or — gated on `isDirty` to avoid
+    // that — essentially never fire.
+    vscode.workspace.onDidSaveTextDocument(scheduleLint),
+
     vscode.workspace.onDidCloseTextDocument((doc) => {
+      const key = doc.uri.toString();
+      const timer = pending.get(key);
+      // Clearing matters: a timer left running fires ~500 ms later and
+      // re-populates diagnostics for a document that is no longer open,
+      // undoing the very cleanup happening here.
+      if (timer) clearTimeout(timer);
+      pending.delete(key);
       diagnostics.delete(doc.uri);
-      pending.delete(doc.uri.toString());
     }),
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration('lb3lint')) {

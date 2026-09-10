@@ -58,7 +58,7 @@
   "scripts": {
     "build": "tsc -p .",
     "test": "npm run build && node --test \"out/test/**/*.test.js\"",
-    "test:integration": "npm run build && node out/test-integration/runTest.js",
+    "test:integration": "npm run build && npm run bundle && node out/test-integration/runTest.js",
     "bundle": "node esbuild.mjs",
     "package": "npm run bundle && vsce package"
   },

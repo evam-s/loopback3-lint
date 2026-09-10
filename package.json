@@ -5,6 +5,12 @@
   "version": "0.0.1",
   "publisher": "evams",
   "license": "MIT",
+  "keywords": [
+    "loopback",
+    "loopback3",
+    "linter",
+    "strongloop"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },

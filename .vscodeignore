@@ -1,9 +1,16 @@
 out/**
 test/**
+test-integration/**
 src/**
 docs/**
 scripts/**
+.vocab-src/**
+.superpowers/**
+.vscode/**
+.vscode-test/**
+node_modules/**
 .gitignore
+package-lock.json
 tsconfig.json
 esbuild.mjs
 **/*.map

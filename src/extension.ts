@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { lintText } from './core/lint';
 import { gate } from './core/gate';
 import type { Finding, RuleSeverities } from './core/types';
+import { registerCodeActions } from './codeActions';
 
 const DEBOUNCE_MS = 500;
 
@@ -74,6 +75,7 @@ export function activate(context: vscode.ExtensionContext): void {
   diagnostics = vscode.languages.createDiagnosticCollection('lb3lint');
   output = vscode.window.createOutputChannel('LoopBack 3 Lint');
   context.subscriptions.push(diagnostics, output);
+  registerCodeActions(context);
 
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument(lint),

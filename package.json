@@ -5,10 +5,18 @@
   "version": "0.0.1",
   "publisher": "evams",
   "license": "MIT",
-  "engines": { "vscode": "^1.85.0" },
-  "categories": ["Linters"],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters"
+  ],
   "main": "./dist/extension.js",
-  "activationEvents": ["onLanguage:javascript", "onLanguage:json", "onLanguage:jsonc"],
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:json",
+    "onLanguage:jsonc"
+  ],
   "contributes": {
     "commands": [
       {
@@ -26,14 +34,22 @@
         },
         "lb3lint.exclude": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "default": [],
           "description": "Glob patterns for files that are never linted."
         },
         "lb3lint.rules": {
           "type": "object",
           "default": {},
-          "additionalProperties": { "enum": ["error", "warn", "off"] },
+          "additionalProperties": {
+            "enum": [
+              "error",
+              "warn",
+              "off"
+            ]
+          },
           "description": "Per-rule severity, keyed by rule id such as lb3/mongo-operator."
         }
       }
@@ -42,6 +58,7 @@
   "scripts": {
     "build": "tsc -p .",
     "test": "npm run build && node --test \"out/test/**/*.test.js\"",
+    "test:integration": "npm run build && node out/test-integration/runTest.js",
     "bundle": "node esbuild.mjs",
     "package": "npm run bundle && vsce package"
   },
@@ -50,10 +67,14 @@
     "jsonc-parser": "^3.2.0"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.0.0",
     "esbuild": "^0.24.0",
+    "glob": "^13.0.6",
+    "mocha": "^12.0.0",
     "typescript": "^5.4.0"
   }
 }

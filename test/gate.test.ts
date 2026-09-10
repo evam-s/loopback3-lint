@@ -77,15 +77,41 @@ test('recognizes a model json by folder and name key alone', () => {
   assert.equal(r.kind, 'model-json');
 });
 
-test('recognizes a model json even when the name key itself is misspelled', () => {
-  // The load-bearing case: the gate must not require an exact match on
-  // 'name', because 'name' is also a MODEL_TOP_LEVEL_KEYS entry that
-  // unknown-model-key exists to catch typos of. An exact-match gate would
-  // hide the very typo the rule is meant to find.
+test('recognizes a model json even when the only present key is a misspelled name', () => {
+  // Isolates the near-miss match on 'name' alone (no other model-shaped key
+  // present), confirming it still works as one of the five independent
+  // signals even on its own.
   const r = json('/app/common/models/order.json',
-    '{ "nane": "Order", "properties": {} }');
+    '{ "nane": "Order" }');
   assert.equal(r.linted, true);
   assert.equal(r.kind, 'model-json');
+});
+
+test('recognizes a model json via properties even when name is a transposition-typo', () => {
+  // The load-bearing case: relying on 'name' alone -- even matched loosely
+  // -- was still broken, because 'name' is a MODEL_TOP_LEVEL_KEYS entry
+  // that unknown-model-key exists to catch typos of, and a transposition
+  // like 'nmae' (edit distance 2 from a 4-character candidate) sits outside
+  // the shared near-miss threshold. The fix is not depending on any single
+  // key: 'properties' here is independent evidence, so a mangled 'name'
+  // does not hide the file.
+  const r = json('/app/common/models/order.json',
+    '{ "nmae": "Order", "properties": {} }');
+  assert.equal(r.linted, true);
+  assert.equal(r.kind, 'model-json');
+});
+
+test('recognizes a model json by base alone', () => {
+  const r = json('/app/common/models/order.json', '{ "base": "PersistedModel" }');
+  assert.equal(r.linted, true);
+  assert.equal(r.kind, 'model-json');
+});
+
+test('does not open on a models-directory json with none of the five model-shaped keys', () => {
+  // Guards against the multi-signal gate becoming a rubber stamp for any
+  // JSON file that happens to sit in a folder named "models".
+  const r = json('/app/common/models/order.json', '{ "unrelated": true }');
+  assert.equal(r.linted, false);
 });
 
 test('recognizes middleware.json when a phase is misspelled', () => {

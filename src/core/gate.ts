@@ -5,6 +5,7 @@ import { suggest } from './util/nearMiss';
 import { MIDDLEWARE_PHASES } from './vocab/middlewarePhases';
 
 const MODEL_DIRS = ['common/models/', 'server/models/'];
+const MODEL_SHAPE_KEYS = ['name', 'properties', 'base', 'relations', 'acls'];
 const BOOT_DIR = 'server/boot/';
 
 const LOOPBACK_REQUIRE =
@@ -88,17 +89,29 @@ function gateJson(input: LintInput, path: string): GateResult {
           reason: 'No top-level key resembles a middleware phase.' };
   }
 
-  // A model definition: identified by folder plus a string `name`. The key
-  // itself is matched loosely, like every other JSON shape signal (connector,
-  // dataSource, middleware phase) -- a gate that demands the exact key would
-  // hide the very typo `unknown-model-key` exists to catch. No rule inspects
-  // this signal, so a typo elsewhere still cannot hide the file.
+  // A model definition: identified by folder plus at least one key that
+  // loosely resembles a top-level model key. Relying on `name` alone was
+  // still broken even once matched loosely -- `name` is itself a
+  // MODEL_TOP_LEVEL_KEYS entry that `unknown-model-key` exists to catch
+  // typos of, so a single mistyped `name` (e.g. a transposition like
+  // 'nmae', which sits outside the shared near-miss threshold for a
+  // 4-character word) could still hide the whole file with zero
+  // diagnostics -- worse than a normal miss, because loopback-boot can
+  // derive a model's name from its filename, so the app runs fine while
+  // linting silently gives up on it. The fix is not a looser threshold on
+  // `name` (that just moves the same failure one edit further away and
+  // reintroduces a second, ad hoc near-miss policy); it is not depending on
+  // any single key. Five independent, loosely-matched signals mean a typo
+  // in any one of them still leaves four others standing, so no single
+  // mistake can hide the file. No value-shape is required of the matched
+  // key -- existence of a plausible key is the signal, not its content.
   if (/\/models\/[^/]+\.json$/.test(path)) {
-    const nameProp = root.props.find((p) => matchesLoosely(p.key, ['name']));
-    return nameProp?.value.kind === 'string'
-      ? { linted: true, kind: 'model-json', signals: ['json in a models directory with a string name'] }
+    const hit = root.props.some((p) => matchesLoosely(p.key, MODEL_SHAPE_KEYS));
+    return hit
+      ? { linted: true, kind: 'model-json',
+          signals: ['json in a models directory with a model-shaped key'] }
       : { linted: false, signals: ['json in a models directory'],
-          reason: 'No string "name" property.' };
+          reason: 'No key resembling name, properties, base, relations, or acls.' };
   }
 
   return { linted: false, signals: [], reason: 'Filename is not a LoopBack 3 configuration file.' };

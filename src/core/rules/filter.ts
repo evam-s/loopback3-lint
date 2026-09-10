@@ -15,15 +15,44 @@ const LOGICAL = ['and', 'or', 'nor'];
  * key is a property name unless it is a logical operator; operator keys live
  * one level down, inside the object a property maps to. Getting this backwards
  * would flag every column in every query.
+ *
+ * `confidence` controls how much we trust that `obj` really is a LoopBack 3
+ * filter, as opposed to some other library's query object that merely
+ * happens to have a `where` key (Sequelize, TypeORM, hand-rolled query
+ * builders, ...):
+ *
+ *  - 'certain' -- the caller has strong evidence: `obj` is the first argument
+ *    of a known LoopBack finder method, or a `scope`/`scopes` block in
+ *    model.json. Run every check, exactly as before this parameter existed.
+ *
+ *  - 'probable' -- the only evidence is a bare object literal containing a
+ *    `where` key. That is real but weak evidence: plenty of non-LoopBack code
+ *    shares that shape. We still descend into `where` and check its
+ *    OPERATORS ($gt, $in, etc.), because those are never valid in LoopBack 3
+ *    or any foreign ORM we know of using LoopBack vocabulary -- reporting
+ *    them is safe regardless of whose filter this is. We skip the top-level
+ *    filter-key checks (foreign-filter-key, unknown-filter-key) and the
+ *    value-shape checks (order/limit/skip/offset), because a sibling key
+ *    like `attributes` or `sort` is only wrong *if* this is really a
+ *    LoopBack filter, and a bare object literal does not establish that.
  */
-export function checkFilter(obj: ObjLike): Finding[] {
+export function checkFilter(
+  obj: ObjLike,
+  confidence: 'certain' | 'probable' = 'certain',
+): Finding[] {
   const out: Finding[] = [];
 
   for (const prop of obj.props) {
     const { key, keyRange, value } = prop;
 
+    if (key === 'where' && value.object) {
+      checkWhere(value.object, out);
+      continue;
+    }
+
+    if (confidence === 'probable') continue;
+
     if (FILTER_KEYS.includes(key)) {
-      if (key === 'where' && value.object) checkWhere(value.object, out);
       if (key === 'order') checkOrder(value, out);
       if (key === 'limit' || key === 'skip' || key === 'offset') {
         if (value.kind !== 'number') {

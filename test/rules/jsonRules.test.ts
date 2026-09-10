@@ -50,6 +50,24 @@ test('connector-namespaced property blocks are never flagged', () => {
   );
 });
 
+test('a property type of "Data" is not flagged as a typo of "date"', () => {
+  // LoopBack 3 lets any model name be a property type, and 'Data' is an
+  // ordinary 4-letter model name -- indistinguishable from a typo of the
+  // 4-letter built-in 'date'. Near-miss suggestions for property types are
+  // only offered against candidates of six characters or more, so short
+  // built-ins never collide with short model names.
+  assert.deepEqual(
+    checkModelJson(obj('{ "name": "X", "properties": { "a": { "type": "Data" } } }')),
+    [],
+  );
+});
+
+test('a property type typo of a long built-in is still caught', () => {
+  const f = checkModelJson(obj('{ "name": "X", "properties": { "a": { "type": "boolen" } } }'));
+  assert.equal(f[0]!.ruleId, 'lb3/unknown-property-type');
+  assert.equal(f[0]!.suggestion, 'Boolean');
+});
+
 test('relation scope is checked as a filter', () => {
   const f = checkModelJson(obj('{ "name": "X", "relations": { "r": { "type": "hasMany", "model": "Y", "scope": { "sort": "id" } } } }'));
   assert.equal(f[0]!.ruleId, 'lb3/foreign-filter-key');

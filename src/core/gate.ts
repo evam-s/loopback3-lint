@@ -88,10 +88,13 @@ function gateJson(input: LintInput, path: string): GateResult {
           reason: 'No top-level key resembles a middleware phase.' };
   }
 
-  // A model definition: identified by folder plus a string `name`, both of
-  // which no rule inspects, so a typo elsewhere cannot hide the file.
+  // A model definition: identified by folder plus a string `name`. The key
+  // itself is matched loosely, like every other JSON shape signal (connector,
+  // dataSource, middleware phase) -- a gate that demands the exact key would
+  // hide the very typo `unknown-model-key` exists to catch. No rule inspects
+  // this signal, so a typo elsewhere still cannot hide the file.
   if (/\/models\/[^/]+\.json$/.test(path)) {
-    const nameProp = root.props.find((p) => p.key === 'name');
+    const nameProp = root.props.find((p) => matchesLoosely(p.key, ['name']));
     return nameProp?.value.kind === 'string'
       ? { linted: true, kind: 'model-json', signals: ['json in a models directory with a string name'] }
       : { linted: false, signals: ['json in a models directory'],

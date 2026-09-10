@@ -77,6 +77,17 @@ test('recognizes a model json by folder and name key alone', () => {
   assert.equal(r.kind, 'model-json');
 });
 
+test('recognizes a model json even when the name key itself is misspelled', () => {
+  // The load-bearing case: the gate must not require an exact match on
+  // 'name', because 'name' is also a MODEL_TOP_LEVEL_KEYS entry that
+  // unknown-model-key exists to catch typos of. An exact-match gate would
+  // hide the very typo the rule is meant to find.
+  const r = json('/app/common/models/order.json',
+    '{ "nane": "Order", "properties": {} }');
+  assert.equal(r.linted, true);
+  assert.equal(r.kind, 'model-json');
+});
+
 test('recognizes middleware.json when a phase is misspelled', () => {
   const r = json('/app/server/middleware.json', '{ "routs": {} }');
   assert.equal(r.linted, true);

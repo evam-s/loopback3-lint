@@ -38,7 +38,10 @@ export function checkJs(ast: unknown): Finding[] {
       const obj = fromEstree(node);
       if (obj?.props.some((p) => p.key === 'where') && !filtersChecked.has(node.range[0])) {
         filtersChecked.add(node.range[0]);
-        out.push(...checkFilter(obj));
+        // A bare object literal with a `where` key is weak evidence -- it
+        // could be Sequelize, TypeORM, or any other query builder. See the
+        // 'probable' confidence level in checkFilter for what that limits us to.
+        out.push(...checkFilter(obj, 'probable'));
       }
       return;
     }
@@ -85,7 +88,8 @@ export function checkJs(ast: unknown): Finding[] {
       if (first.type !== 'ObjectExpression' || filtersChecked.has(first.range[0])) return;
       filtersChecked.add(first.range[0]);
       const obj = fromEstree(first);
-      if (obj) out.push(...checkFilter(obj));
+      // A known LoopBack finder's first argument is strong evidence: judge it in full.
+      if (obj) out.push(...checkFilter(obj, 'certain'));
     }
   });
 

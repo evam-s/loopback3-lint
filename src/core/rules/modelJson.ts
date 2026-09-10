@@ -20,8 +20,19 @@ import { CONNECTOR_NAMESPACES } from '../vocab/datasourceKeys';
 // and mapping the result back to the canonical casing avoids both.
 const PROPERTY_TYPES_LOWER = PROPERTY_TYPES.map((t) => t.toLowerCase());
 
+// LoopBack 3 lets any model name be used as a property type (`{ "type":
+// "Order" }` for a belongsTo-style embedded reference), so a short built-in
+// name is indistinguishable from an ordinary short model name one edit away
+// -- 'Data' is not a typo of 'date', it is a model. A four-letter dictionary
+// word cannot be told apart from a four-letter model name, so for property
+// types specifically we only offer a near-miss suggestion against candidates
+// of six characters or more. This deliberately gives up catching typos of
+// the short built-ins (any, json, text, null, date, array); that is the
+// safe direction, and is the point.
+const PROPERTY_TYPES_FOR_SUGGESTION = PROPERTY_TYPES_LOWER.filter((t) => t.length >= 6);
+
 function suggestPropertyType(token: string): string | undefined {
-  const near = suggest(token.toLowerCase(), PROPERTY_TYPES_LOWER);
+  const near = suggest(token.toLowerCase(), PROPERTY_TYPES_FOR_SUGGESTION);
   if (!near) return undefined;
   return PROPERTY_TYPES[PROPERTY_TYPES_LOWER.indexOf(near)];
 }

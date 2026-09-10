@@ -55,12 +55,31 @@ test('does not double-report a filter reached by both paths', () => {
 
 test('produces nothing on the Sequelize fixture even if forced past the gate', () => {
   // Belt and braces: the gate should never let this file through, but if a
-  // future signal change did, the rules must still stay silent.
+  // future signal change did, the rules must still stay silent. This must
+  // be a wholly empty result -- not just no errors. A bare object literal
+  // carrying `where` (Sequelize's findAll options) is weak evidence of a
+  // LoopBack filter, so its sibling keys (here, `attributes`) must not be
+  // judged against LoopBack vocabulary.
   // Source tree, not out/ — tsc does not copy fixtures. This file compiles
   // to out/test/rules/, hence three levels up.
   const code = readFileSync(
     join(__dirname, '..', '..', '..', 'test', 'fixtures',
          'non-loopback', 'sequelize-model.js'), 'utf8');
-  const findings = run(code);
-  assert.deepEqual(findings.filter((f) => f.severity === 'error'), []);
+  assert.deepEqual(run(code), []);
+});
+
+test('a bare object with a where clause still catches Mongo operators', () => {
+  const f = run("const filter = { where: { total: { $lt: 1 } } };");
+  assert.equal(f.length, 1);
+  assert.equal(f[0]!.ruleId, 'lb3/mongo-operator');
+});
+
+test('a bare object with a where clause does not judge its sibling keys', () => {
+  // Could be any query builder. Not enough evidence that it is LoopBack's.
+  assert.deepEqual(run("const q = { where: { x: 1 }, attributes: ['a'] };"), []);
+});
+
+test('a filter passed to a finder method IS judged in full', () => {
+  const f = run("Order.find({ where: { x: 1 }, attributes: ['a'] });");
+  assert.equal(f[0]!.ruleId, 'lb3/foreign-filter-key');
 });

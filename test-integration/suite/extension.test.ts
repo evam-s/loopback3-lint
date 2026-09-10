@@ -17,14 +17,14 @@ const lb3 = (uri: vscode.Uri) =>
 
 suite('LoopBack 3 Lint integration', () => {
   test('publishes diagnostics for a broken model file', async () => {
-    const doc = await open('broken/order.json');
+    const doc = await open('broken/common/models/order.json');
     const found = lb3(doc.uri);
     assert.ok(found.length > 0, 'expected diagnostics on the broken fixture');
     assert.ok(found.some((d) => d.code === 'lb3/unknown-base-model'));
   });
 
   test('publishes nothing for the clean model file', async () => {
-    const doc = await open('clean/order.json');
+    const doc = await open('clean/common/models/order.json');
     assert.deepEqual(lb3(doc.uri), []);
   });
 
@@ -34,7 +34,7 @@ suite('LoopBack 3 Lint integration', () => {
   });
 
   test('offers a quick fix carrying the suggested replacement', async () => {
-    const doc = await open('broken/order.json');
+    const doc = await open('broken/common/models/order.json');
     const target = lb3(doc.uri).find((d) => d.code === 'lb3/unknown-base-model');
     assert.ok(target, 'expected the base-model diagnostic');
     const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
@@ -43,7 +43,7 @@ suite('LoopBack 3 Lint integration', () => {
   });
 
   test('clears diagnostics when the document closes', async () => {
-    const doc = await open('broken/order.json');
+    const doc = await open('broken/common/models/order.json');
     assert.ok(lb3(doc.uri).length > 0);
     await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     await new Promise((r) => setTimeout(r, 1000));

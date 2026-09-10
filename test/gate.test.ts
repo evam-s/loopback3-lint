@@ -110,3 +110,15 @@ test('normalizes Windows path separators', () => {
   });
   assert.equal(r.linted, true);
 });
+
+test('accepts the model fixtures at their real on-disk paths', () => {
+  // Regression guard: every other gate test passes a synthetic path, so
+  // fixtures could sit somewhere the gate rejects and no unit test would
+  // notice. Integration tests caught exactly that.
+  for (const rel of ['clean/common/models/order.json', 'broken/common/models/order.json']) {
+    const p = join(FIX, rel);
+    const r = gate({ path: p, text: readFileSync(p, 'utf8'), languageId: 'json' });
+    assert.equal(r.linted, true, `${rel} must be linted`);
+    assert.equal(r.kind, 'model-json');
+  }
+});

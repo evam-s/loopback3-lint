@@ -16,11 +16,11 @@ const obj = (text: string) => fromJsonc(parseTree(text))!;
 const file = (p: string) => obj(readFileSync(join(FIX, p), 'utf8'));
 
 test('the clean model fixture produces no findings at all', () => {
-  assert.deepEqual(checkModelJson(file('clean/order.json')), []);
+  assert.deepEqual(checkModelJson(file('clean/common/models/order.json')), []);
 });
 
 test('the broken model fixture produces exactly the expected rule ids', () => {
-  const ids = checkModelJson(file('broken/order.json')).map((f) => f.ruleId).sort();
+  const ids = checkModelJson(file('broken/common/models/order.json')).map((f) => f.ruleId).sort();
   assert.deepEqual(ids, [
     'lb3/invalid-acl-value',
     'lb3/invalid-acl-value',

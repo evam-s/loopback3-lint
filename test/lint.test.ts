@@ -57,7 +57,7 @@ test('findings are returned in source-position order', () => {
   // anything today. The sort is kept as a cheap guarantee at the lintText
   // boundary for a future rule that might emit out of order; this test
   // just pins the contract that callers may rely on ascending positions.
-  const text = readFileSync(join(FIX, 'broken', 'order.json'), 'utf8');
+  const text = readFileSync(join(FIX, 'broken', 'common', 'models', 'order.json'), 'utf8');
   const f = lintText({ path: '/app/common/models/order.json', text, languageId: 'json' });
   assert.equal(f.length, 7);
   for (let i = 1; i < f.length; i++) {

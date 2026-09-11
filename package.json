@@ -5,6 +5,13 @@
   "version": "0.0.1",
   "publisher": "evams",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evam-s/loopback3-lint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/evam-s/loopback3-lint/issues"
+  },
   "keywords": [
     "loopback",
     "loopback3",

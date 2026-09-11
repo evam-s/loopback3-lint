@@ -72,7 +72,31 @@ never on the mere fact that something is unrecognized.
 Run **LoopBack 3 Lint: Explain detection for this file** from the command
 palette to see why a file is — or is not — being linted.
 
+## Turning off a noisy rule
+
+Every diagnostic carries its rule id — `lb3/unknown-connector`, and so on —
+shown alongside the message. Any single rule can be silenced without
+disabling the extension:
+
+```json
+"lb3lint.rules": {
+  "lb3/unknown-connector": "off"
+}
+```
+
 ## Status
+
+**Preview.** The rules are covered by a fixture suite and by integration
+tests that run the extension inside a real VS Code instance, but it has not
+yet been exercised against a large production LoopBack 3 codebase. The risk
+is not that it breaks — it is that a dictionary has a gap and the extension
+is noisier than it should be on code that is perfectly correct.
+
+If you get a warning on valid LoopBack 3 code, that is a bug, and the most
+useful kind to report. Please
+[open an issue](https://github.com/evam-s/loopback3-lint/issues) with the
+rule id from the message and the snippet it flagged. Mute that rule as shown
+above in the meantime.
 
 LoopBack 3 reached end of life in December 2020; LoopBack 4 is its
 successor. This extension exists for the applications still running on

@@ -4,6 +4,7 @@
   "description": "Flags LoopBack 3 vocabulary errors that the framework accepts silently.",
   "version": "0.0.1",
   "publisher": "evams",
+  "preview": true,
   "license": "MIT",
   "repository": {
     "type": "git",
